@@ -1,38 +1,78 @@
 {
     "subjects": [
         {
+            "name": "COA",
+            "totalClasses": 0,
+            "classesAttended": 0
+        },
+        {
             "name": "DBMS",
-            "totalClasses": 3,
-            "classesAttended": 2
+            "totalClasses": 0,
+            "classesAttended": 0
         },
         {
             "name": "DSA",
-            "totalClasses": 2,
-            "classesAttended": 1
+            "totalClasses": 0,
+            "classesAttended": 0
+        },
+        {
+            "name": "DS",
+            "totalClasses": 0,
+            "classesAttended": 0
+        },
+        {
+            "name": "Discrete",
+            "totalClasses": 0,
+            "classesAttended": 0
         }
     ],
     "timetable": {
         "Monday": [
             {
-                "subject_name": "DBMS",
-                "time": "9:00 AM"
+                "time": "10:00 AM",
+                "subject": "COA"
+            },
+            {
+                "time": "11:00",
+                "subject": "DBMS"
+            },
+            {
+                "time": "13:00",
+                "subject": "DSA"
+            },
+            {
+                "time": "14:00",
+                "subject": "DS"
+            },
+            {
+                "time": "15:00",
+                "subject": "Discrete"
             }
         ],
         "Tuesday": [
             {
-                "subject_name": "DSA",
-                "time": "10:00 AM"
+                "time": "9:00",
+                "subject": "Discrete"
             }
         ],
-        "Wednesday": [],
-        "Thursday": [],
+        "Wednesday": [
+            {
+                "time": "10:00",
+                "subject": "DS"
+            }
+        ],
+        "Thursday": [
+            {
+                "time": "11:00",
+                "subject": "COA"
+            }
+        ],
         "Friday": [
             {
-                "subject_name": "DBMS",
-                "time": "9:00 AM"
+                "time": "9:00",
+                "subject": "DBMS"
             }
-        ],
-        "Saturday": [],
-        "Sunday": []
-    }
+        ]
+    },
+    "exams": []
 }
