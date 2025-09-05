@@ -1,136 +1,101 @@
-# CYHI-Project 
-# Smart Student Planner
+Smart Student Planner
+A comprehensive web application designed to help students manage their class attendance, track subjects, and plan their academic schedule effectively.
 
-A web-based student planner application designed to help students track their attendance, manage their class timetable, and calculate the required attendance to meet their goals.
+Features
+Dashboard Overview: Get a quick summary of your overall attendance percentage, today's classes, and upcoming exams.
 
-## Features
+Subject Management: Add and manage subjects with detailed attendance tracking.
 
-- **Dashboard**: Overview of overall attendance, today's classes, and upcoming exams  
-- **Attendance Tracking**: Subject-wise attendance tracking with visual indicators  
-- **Timetable Management**: Weekly class schedule management  
-- **Improvement Calculator**: Calculate how many classes you need to attend to reach your target attendance percentage  
-- **Responsive Design**: Works on desktop and mobile devices  
+Attendance Tracking: Update attendance for each subject with a single click (present/absent).
 
-## Technology Stack
+Timetable Management: View and manage your weekly class schedule.
 
-- **Frontend**: HTML, Tailwind CSS, JavaScript  
-- **Backend**: Flask (Python)  
-- **Data Storage**: JSON file-based storage  
-- **Font**: Inter from Google Fonts  
+Attendance Improvement Calculator: Calculate how many classes you need to attend to reach your desired attendance percentage.
 
-## Installation & Setup
+Tech Stack
+Backend: Flask (Python) with RESTful API
 
-### Prerequisites
+Frontend: HTML, Tailwind CSS, Vanilla JavaScript
 
-- Python 3.x  
-- pip (Python package manager)  
+Data Storage: JSON file-based storage
 
-### Steps
+CORS: Enabled for frontend-backend communication
 
-1. Clone or download the project files:  
-   ```bash
-   mkdir smart-student-planner
-   cd smart-student-planner
+Installation & Setup
+Clone or download the project files to your local machine.
+
 Install Python dependencies:
 
 bash
-Copy code
 pip install flask flask-cors
-Ensure all files are in the same directory:
-
-index.html
-
-style.css
-
-script.js
-
-app.py
-
-attendance_data.json (will be created automatically if not present)
-
-Run the Flask server:
+Run the Flask backend server:
 
 bash
-Copy code
 python app.py
-Open the application:
+The server will start on http://127.0.0.1:5000
 
-Navigate to http://127.0.0.1:5000/ in your web browser
+Open the frontend:
 
-Or open index.html directly (some features will not work without the backend)
+Open index.html in a web browser
 
-Usage
-Adding Subjects
-Go to the Attendance tab
+Or use a local server (e.g., with Live Server extension in VSCode)
 
-Click Add New Subject
-
-Fill in the subject name, total classes, and classes attended
-
-Click Add Subject
-
-Updating Attendance
-Click the checkmark (✓) to mark a class as attended
-
-Click the cross (✕) to mark a class as absent
-
-Managing Timetable
-Go to the Timetable tab
-
-Click Add Class
-
-Select a subject, day of week, and time
-
-Click Add to Timetable
-
-Calculating Improvement
-Go to the Improvement tab
-
-Select a subject
-
-Enter the number of remaining classes in the semester
-
-Click Calculate to see how many classes you need to attend to reach 75% attendance
-
+File Structure
+text
+project/
+├── app.py              # Flask backend server
+├── attendance_data.json # Data storage file
+├── index.html          # Main HTML file
+├── script.js           # Frontend JavaScript logic
+├── style.css           # Additional styling
+└── README.md           # This file
 API Endpoints
 GET /api/data - Retrieve all subjects and timetable data
 
 POST /api/subjects - Add a new subject
 
-PUT /api/subjects/<subject_name> - Update attendance for a subject
+PUT /api/subjects/<subject_name> - Update attendance for a specific subject
 
 POST /api/timetable/add - Add a class to the timetable
 
-Data Structure
-The application uses a JSON file (attendance_data.json) to store:
+Usage
+Adding Subjects: Navigate to the Attendance tab and click "Add New Subject" to add your courses.
 
-Subjects with name, total classes, and classes attended
+Updating Attendance: Use the checkmark (✓) to mark a class as attended or cross (✕) to mark as absent.
 
-Weekly timetable with classes organized by day
+Managing Timetable: Go to the Timetable tab to view your weekly schedule and add new classes.
+
+Improvement Calculator: Use the Improvement tab to calculate how many classes you need to attend to reach your target attendance percentage.
+
+Data Persistence
+All data is stored in attendance_data.json which will be automatically created when you first run the application.
 
 Browser Compatibility
-Works best with modern browsers that support:
+This application works best in modern browsers that support:
 
-ES6+ JavaScript features
+ES6 JavaScript features
 
-CSS Grid and Flexbox
+Flexbox and Grid layout
 
 Fetch API
 
 Troubleshooting
-CORS errors: Ensure the Flask server is running before using the application
+If you encounter CORS errors, ensure the Flask server is running before opening the frontend.
 
-Data not saving: Check that the application has write permissions to the directory
-
-Features not working: Open browser developer tools to check for JavaScript errors
+If data isn't persisting, check that the application has write permissions to create and modify attendance_data.json.
 
 Future Enhancements
+Potential improvements for this application could include:
+
 User authentication system
 
-Exam and assignment tracking
-
-Notifications and reminders
+Exam scheduling and reminders
 
 Data export functionality
 
 Mobile app version
+
+Cloud synchronization
+
+License
+This project is open source and available under the MIT License.
