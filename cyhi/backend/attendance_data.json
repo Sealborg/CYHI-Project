@@ -1,0 +1,38 @@
+{
+    "subjects": [
+        {
+            "name": "DBMS",
+            "totalClasses": 3,
+            "classesAttended": 2
+        },
+        {
+            "name": "DSA",
+            "totalClasses": 2,
+            "classesAttended": 1
+        }
+    ],
+    "timetable": {
+        "Monday": [
+            {
+                "subject_name": "DBMS",
+                "time": "9:00 AM"
+            }
+        ],
+        "Tuesday": [
+            {
+                "subject_name": "DSA",
+                "time": "10:00 AM"
+            }
+        ],
+        "Wednesday": [],
+        "Thursday": [],
+        "Friday": [
+            {
+                "subject_name": "DBMS",
+                "time": "9:00 AM"
+            }
+        ],
+        "Saturday": [],
+        "Sunday": []
+    }
+}
