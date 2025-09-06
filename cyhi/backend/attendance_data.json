@@ -2,8 +2,8 @@
     "subjects": [
         {
             "name": "COA",
-            "totalClasses": 0,
-            "classesAttended": 0
+            "totalClasses": 2,
+            "classesAttended": 2
         },
         {
             "name": "DBMS",
@@ -74,5 +74,16 @@
             }
         ]
     },
-    "exams": []
+    "exams": [
+        {
+            "subject": "COA",
+            "date": "september 10,2025",
+            "time": "10:00:00 AM"
+        },
+        {
+            "subject": "DBMS",
+            "date": "september 7 2025",
+            "time": "10:00:00 AM"
+        }
+    ]
 }

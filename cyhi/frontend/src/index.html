@@ -4,200 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Student Planner</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 font-['Inter']">
+<body class="bg-gray-900 text-gray-100 font-sans">
 
-    <div class="min-h-screen flex flex-col items-center p-4">
+    
+    <div class="min-h-screen p-4 flex flex-col items-center">
         <div class="max-w-4xl w-full">
 
+          
             <header class="flex justify-between items-center py-6 px-4">
                 <div class="flex items-center space-x-2">
                     <span class="text-xl font-bold">Smart Student Planner</span>
-                    <span class="text-gray-400">Welcome back, SHIVAM!</span>
+                    <span class="text-gray-400">Welcome back, USER!</span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white">
-                        S
+                        U
                     </div>
-                    <span>SHIVAM</span>
+                    <span>USER</span>
                 </div>
             </header>
 
-
+            
             <nav class="bg-gray-800 p-2 rounded-xl mb-6 flex justify-around">
-                <div class="nav-item active" data-tab="dashboard">
+                <a href="#" class="nav-item active" data-tab="dashboard">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                     <span>Dashboard</span>
-                </div>
-                <div class="nav-item" data-tab="timetable">
+                </a>
+                <a href="#" class="nav-item" data-tab="timetable">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
                     <span>Timetable</span>
-                </div>
-                <div class="nav-item" data-tab="attendance">
+                </a>
+                <a href="#" class="nav-item" data-tab="attendance">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
                     <span>Attendance</span>
-                </div>
-                <div class="nav-item" data-tab="improvement">
+                </a>
+                <a href="#" class="nav-item" data-tab="improvement">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m18 13-6 6-4-4-5 5"/></svg>
                     <span>Improvement</span>
-                </div>
+                </a>
+                <a href="#" class="nav-item" data-tab="exams">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <span>Exams</span>
+                </a>
             </nav>
 
+            
+            <div id="message-banner" class="hidden bg-blue-600 text-white p-3 rounded-xl mb-4 text-center"></div>
 
-            <div id="message-banner" class="hidden p-3 rounded-xl mb-4 text-center"></div>
+        
+            <div id="dashboard" class="tab-content">
+                <div class="bg-gray-800 p-6 rounded-xl flex justify-between items-center mb-6">
+                    <div>
+                        <div id="current-date" class="text-xl font-bold"></div>
+                        <div id="current-time" class="text-sm text-gray-400"></div>
+                    </div>
+                </div>
 
-
-            <div id="dashboard" class="content-section">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-gray-800 p-6 rounded-xl flex flex-col items-center">
-                        <h3 class="text-gray-400">Today's Overview</h3>
+                        <h3 class="text-gray-400">Overall Attendance</h3>
                         <div id="overall-attendance" class="text-4xl font-bold mt-2">0%</div>
-                        <span class="text-sm text-gray-400">Overall Attendance</span>
                     </div>
                     <div class="bg-gray-800 p-6 rounded-xl flex flex-col items-center">
                         <h3 class="text-gray-400">Today's Classes</h3>
-                        <div class="text-4xl font-bold mt-2">0</div>
-                        <span class="text-sm text-gray-400">Classes Today</span>
+                        <div id="today-classes-count" class="text-4xl font-bold mt-2">0</div>
                     </div>
                     <div class="bg-gray-800 p-6 rounded-xl flex flex-col items-center">
                         <h3 class="text-gray-400">Upcoming Exams</h3>
-                        <div class="text-4xl font-bold mt-2">0</div>
-                        <span class="text-sm text-gray-400">Upcoming Exams</span>
+                        <div id="upcoming-exams-count" class="text-4xl font-bold mt-2">0</div>
                     </div>
                 </div>
 
-                <div class="bg-gray-800 p-6 rounded-xl mt-4">
+                <div class="bg-gray-800 p-6 rounded-xl mt-6">
                     <h3 class="text-xl font-bold mb-4">Subject-wise Attendance</h3>
-                    <div id="subject-list" class="space-y-4">
-
-                        <p class="text-center text-gray-400">Loading data...</p>
+                    <div id="subject-attendance-list" class="space-y-4">
+                        <p class="text-center text-gray-400">No attendance data available.</p>
                     </div>
-                </div>
-            </div>
-
-
-            <div id="timetable" class="content-section hidden">
-                <div class="bg-gray-800 p-6 rounded-xl">
-                    <h3 class="text-xl font-bold mb-4">Weekly Timetable</h3>
-                    <div id="timetable-grid">
-                        <p class="text-center text-gray-400">Loading timetable...</p>
-                    </div>
-                </div>
-            </div>
-
-
-            <div id="attendance" class="content-section hidden">
-                <div class="bg-gray-800 p-6 rounded-xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold">Attendance Tracker</h3>
-                        <button id="add-subject-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
+                    <div class="mt-6 flex justify-center">
+                        <button id="add-subject-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
                             <span class="inline-flex items-center space-x-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                                 <span>Add New Subject</span>
                             </span>
                         </button>
                     </div>
-                    <div id="attendance-list" class="space-y-4">
-                        <p class="text-center text-gray-400">Loading attendance data...</p>
+                </div>
+
+                <div class="bg-gray-800 p-6 rounded-xl mt-6">
+                    <h3 class="text-xl font-bold mb-4">Today's Classes</h3>
+                    <div id="todays-classes-list" class="space-y-4">
+                        <p class="text-center text-gray-400">No classes scheduled for today.</p>
                     </div>
                 </div>
             </div>
 
-            <div id="improvement" class="content-section hidden">
+            <div id="timetable" class="tab-content hidden">
+                <div class="bg-gray-800 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold mb-4">Timetable Options</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-8 border-2 border-dashed border-gray-600 rounded-xl text-center flex flex-col items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 12h8"/><path d="M8 16h8"/></svg>
+                            <p class="font-medium text-gray-300">Upload Timetable</p>
+                            <p class="text-sm text-gray-500">Drag & drop or click to browse</p>
+                            <form id="upload-form" class="mt-4 w-full">
+                                <input type="file" id="timetable-file-input" accept=".csv, .xlsx" class="hidden">
+                                <button type="button" id="upload-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
+                                    Choose File
+                                </button>
+                            </form>
+                        </div>
+                        <div class="p-8 border-2 border-dashed border-gray-600 rounded-xl text-center flex flex-col items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            <p class="font-medium text-gray-300">Manual Entry</p>
+                            <p class="text-sm text-gray-500">Add classes one by one</p>
+                            <button type="button" id="manual-add-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors mt-4">
+                                Add Class Manually
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="timetable-content" class="mt-6">
+               
+                </div>
+            </div>
+            
+     
+            <div id="add-subject-modal" class="modal-overlay hidden">
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4">Add New Subject</h3>
+                    <form id="add-subject-form" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-400">Subject Name</label>
+                            <input type="text" id="subject-name" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400">Total Classes (optional)</label>
+                            <input type="number" id="total-classes" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400">Classes Attended (optional)</label>
+                            <input type="number" id="classes-attended" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500">
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancel-add-subject" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">Cancel</button>
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">Add Subject</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+          
+            <div id="add-class-modal" class="modal-overlay hidden">
+                <div class="modal-content">
+                    <h3 class="text-xl font-bold mb-4">Add Class to Timetable</h3>
+                    <form id="add-class-form" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-400">Subject Name</label>
+                            <input type="text" id="add-class-subject-input" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400">Day of the Week</label>
+                            <select id="add-class-day" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required>
+                                <option value="">Choose a day</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400">Time</label>
+                            <input type="time" id="add-class-time" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required>
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancel-add-class" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">Cancel</button>
+                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">Add Class</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+       
+            <div id="attendance" class="tab-content hidden">
+                <div class="bg-gray-800 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold mb-4">Attendance Summary</h3>
+                    <div id="attendance-summary-list" class="space-y-4">
+                        <p class="text-center text-gray-400">No attendance records found.</p>
+                    </div>
+                </div>
+            </div>
+
+        
+            <div id="improvement" class="tab-content hidden">
                 <div class="bg-gray-800 p-6 rounded-xl">
                     <h3 class="text-xl font-bold mb-4">Attendance Calculator</h3>
                     <form id="improvement-form" class="space-y-4">
                         <div>
                             <label class="block text-gray-400 mb-1">Select Subject</label>
-                            <select id="calc-subject" class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500">
+                            <select id="calc-subject-select" class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required>
                                 <option value="">Choose a subject</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-gray-400 mb-1">Total Remaining Classes</label>
-                            <input type="number" id="remaining-classes" placeholder="e.g., 20" class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required />
+                            <input type="number" id="remaining-classes" placeholder="e.g., 20" class="w-full p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required>
                         </div>
                         <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
                             Calculate Improvement Plan
                         </button>
                     </form>
-                    <div id="improvement-result" class="mt-4 p-4 rounded-xl bg-gray-700 text-center hidden"></div>
+                    <div id="improvement-result" class="hidden mt-4 p-4 rounded-xl bg-gray-700 text-center"></div>
                 </div>
             </div>
-        </div>
 
-        <div id="add-subject-modal" class="modal-overlay hidden">
-            <div class="modal-content">
-                <h3 class="text-xl font-bold mb-4">Add New Subject</h3>
-                <form id="add-subject-form" class="space-y-4">
-                    <div>
-                        <label class="block text-gray-400">Subject Name</label>
-                        <input type="text" id="subject-name" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required />
+           
+            <div id="exams" class="tab-content hidden">
+                <div class="bg-gray-800 p-6 rounded-xl">
+                    <h3 class="text-xl font-bold mb-4">Exam Timetable</h3>
+                    <div class="p-8 border-2 border-dashed border-gray-600 rounded-xl text-center flex flex-col items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <p class="font-medium text-gray-300">Upload Exam Timetable Excel</p>
+                        <p class="text-sm text-gray-500">Drag & drop or click to browse</p>
+                        <form id="upload-exam-form" class="mt-4 w-full">
+                            <input type="file" id="exam-file-input" accept=".csv, .xlsx" class="hidden">
+                            <button type="button" id="upload-exam-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
+                                Choose File
+                            </button>
+                        </form>
                     </div>
-                    <div>
-                        <label class="block text-gray-400">Total Classes</label>
-                        <input type="number" id="total-classes" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required />
+                    <div class="mt-6">
+                        <h4 class="text-lg font-bold">Upcoming Exams</h4>
+                        <div id="upcoming-exams-list" class="space-y-4">
+                            <p class="text-sm text-gray-400 mt-2">No exam data available.</p>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-gray-400">Classes Attended (optional)</label>
-                        <input type="number" id="classes-attended" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" />
-                    </div>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancel-add-subject" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
-                            Add Subject
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
 
-        <div id="add-timetable-modal" class="modal-overlay hidden">
-            <div class="modal-content">
-                <h3 class="text-xl font-bold mb-4">Add Class to Timetable</h3>
-                <form id="add-timetable-form" class="space-y-4">
-                    <div>
-                        <label class="block text-gray-400">Subject Name</label>
-                        <select id="timetable-subject" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required>
-                            <option value="">Choose a subject</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-400">Day of the Week</label>
-                        <select id="timetable-day" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required>
-                            <option value="">Choose a day</option>
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                            <option value="Sunday">Sunday</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-400">Time (e.g., 9:00 AM)</label>
-                        <input type="text" id="timetable-time" class="w-full mt-1 p-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-indigo-500" required />
-                    </div>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancel-timetable" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
-                            Add Class
-                        </button>
-                    </div>
-                </form>
-            </div>
         </div>
-
     </div>
-
+    
     <script src="script.js"></script>
 </body>
 </html>

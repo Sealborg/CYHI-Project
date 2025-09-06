@@ -1,83 +1,58 @@
+
 const API_URL = 'http://127.0.0.1:5000/api';
+const EXAM_API_URL = 'http://127.0.0.1:5000/api/exams';
+
 
 const navItems = document.querySelectorAll('.nav-item');
-const contentSections = document.querySelectorAll('.content-section');
+const tabContents = document.querySelectorAll('.tab-content');
 const messageBanner = document.getElementById('message-banner');
 
-const subjectListDiv = document.getElementById('subject-list');
-const attendanceListDiv = document.getElementById('attendance-list');
-const overallAttendanceDiv = document.getElementById('overall-attendance');
-const timetableGridDiv = document.getElementById('timetable-grid');
+const dashboardTab = document.getElementById('dashboard');
+const overallAttendance = document.getElementById('overall-attendance');
+const todayClassesCount = document.getElementById('today-classes-count');
+const subjectAttendanceList = document.getElementById('subject-attendance-list');
+const todaysClassesList = document.getElementById('todays-classes-list');
+const currentDateEl = document.getElementById('current-date');
+const currentTimeEl = document.getElementById('current-time');
+
+const timetableFileInput = document.getElementById('timetable-file-input');
+const timetableUploadButton = document.getElementById('upload-button');
+const manualAddButton = document.getElementById('manual-add-button');
+const timetableContent = document.getElementById('timetable-content');
+
+const attendanceSummaryList = document.getElementById('attendance-summary-list');
+const calcSubjectSelect = document.getElementById('calc-subject-select');
+const remainingClassesInput = document.getElementById('remaining-classes');
+const improvementResult = document.getElementById('improvement-result');
+const improvementForm = document.getElementById('improvement-form');
 
 const addSubjectModal = document.getElementById('add-subject-modal');
 const addSubjectForm = document.getElementById('add-subject-form');
-const addSubjectBtn = document.getElementById('add-subject-btn');
+const subjectNameInput = document.getElementById('subject-name');
+const totalClassesInput = document.getElementById('total-classes');
+const classesAttendedInput = document.getElementById('classes-attended');
+const addSubjectButton = document.getElementById('add-subject-button');
 const cancelAddSubjectBtn = document.getElementById('cancel-add-subject');
 
-const addTimetableModal = document.getElementById('add-timetable-modal');
-const timetableSubjectSelect = document.getElementById('timetable-subject');
-const addTimetableForm = document.getElementById('add-timetable-form');
-const addTimetableBtn = document.getElementById('add-timetable-btn'); 
-const cancelTimetableBtn = document.getElementById('cancel-timetable');
+const addClassModal = document.getElementById('add-class-modal');
+const addClassForm = document.getElementById('add-class-form');
+const addClassSubjectInput = document.getElementById('add-class-subject-input');
+const addClassDaySelect = document.getElementById('add-class-day');
+const addClassTimeInput = document.getElementById('add-class-time');
+const cancelAddClassBtn = document.getElementById('cancel-add-class');
 
-const improvementForm = document.getElementById('improvement-form');
-const calcSubjectSelect = document.getElementById('calc-subject');
-const remainingClassesInput = document.getElementById('remaining-classes');
-const improvementResultDiv = document.getElementById('improvement-result');
+const examFileInput = document.getElementById('exam-file-input');
+const examUploadButton = document.getElementById('upload-exam-button');
+const upcomingExamsList = document.getElementById('upcoming-exams-list');
+const upcomingExamsCount = document.getElementById('upcoming-exams-count');
 
-let subjects = [];
-let timetable = {};
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (addTimetableBtn) {
-        addTimetableBtn.addEventListener('click', () => addTimetableModal.classList.remove('hidden'));
-    }
-    
-    if (addSubjectBtn) {
-        addSubjectBtn.addEventListener('click', () => {
-            addSubjectModal.classList.remove('hidden');
-        });
-    }
+let allSubjects = [];
+let timetableData = {};
+let examData = [];
 
-    if (cancelAddSubjectBtn) {
-        cancelAddSubjectBtn.addEventListener('click', () => {
-            addSubjectModal.classList.add('hidden');
-        });
-    }
 
-    if (cancelTimetableBtn) {
-        cancelTimetableBtn.addEventListener('click', () => {
-            addTimetableModal.classList.add('hidden');
-        });
-    }
-
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            navItems.forEach(nav => nav.classList.remove('active'));
-            item.classList.add('active');
-            const tab = item.getAttribute('data-tab');
-            contentSections.forEach(section => {
-                section.classList.add('hidden');
-                if (section.id === tab) {
-                    section.classList.remove('hidden');
-                }
-            });
-            if (tab === 'timetable') {
-                renderTimetable();
-            } else if (tab === 'attendance') {
-                renderAttendanceList();
-            }
-        });
-    });
-
-    addSubjectForm.addEventListener('submit', handleAddSubject);
-    addTimetableForm.addEventListener('submit', handleAddTimetable);
-    improvementForm.addEventListener('submit', handleCalculateImprovement);
-    
-    fetchData();
-});
-
-const showMessage = (message, type = 'info') => {
+function showMessage(message, type = 'info') {
     messageBanner.textContent = message;
     messageBanner.classList.remove('hidden', 'bg-red-600', 'bg-green-600', 'bg-blue-600');
     if (type === 'error') {
@@ -87,42 +62,43 @@ const showMessage = (message, type = 'info') => {
     } else {
         messageBanner.classList.add('bg-blue-600');
     }
+    messageBanner.classList.remove('hidden');
     setTimeout(() => {
         messageBanner.classList.add('hidden');
     }, 5000);
-};
+}
 
-const fetchData = async () => {
-    showMessage('Loading data...', 'info');
-    try {
-        const response = await fetch(`${API_URL}/data`);
-        if (!response.ok) {
-            throw new Error(`Server responded with status: ${response.status}`);
-        }
-        const data = await response.json();
-        subjects = data.subjects;
-        timetable = data.timetable;
-        renderDashboard();
-        populateSubjectSelects();
-        showMessage('Data loaded successfully!', 'success');
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        showMessage('Error fetching data. Please ensure the Flask server is running and CORS is configured.', 'error');
+function updateDateTime() {
+    const now = new Date();
+    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const optionsTime = { hour: '2-digit', minute: '2-digit' };
+    currentDateEl.textContent = now.toLocaleDateString('en-US', optionsDate);
+    currentTimeEl.textContent = now.toLocaleTimeString('en-US', optionsTime);
+}
+
+function calculateOverallAttendance() {
+    if (!allSubjects || allSubjects.length === 0) {
+        overallAttendance.textContent = '0%';
+        return;
     }
-};
+    const totalAttended = allSubjects.reduce((sum, s) => sum + s.classesAttended, 0);
+    const totalClasses = allSubjects.reduce((sum, s) => sum + s.totalClasses, 0);
+    const overallPercentage = totalClasses > 0 ? (totalAttended / totalClasses) * 100 : 0;
+    overallAttendance.textContent = `${overallPercentage.toFixed(1)}%`;
+}
 
-const renderDashboard = () => {
-
-    const totalClasses = subjects.reduce((sum, s) => sum + s.totalClasses, 0);
-    const attendedClasses = subjects.reduce((sum, s) => sum + s.classesAttended, 0);
-    const overallPercentage = totalClasses > 0 ? ((attendedClasses / totalClasses) * 100).toFixed(0) : 0;
-    overallAttendanceDiv.textContent = `${overallPercentage}%`;
+function renderSubjectAttendance() {
+    if (!allSubjects || allSubjects.length === 0) {
+        subjectAttendanceList.innerHTML = `<p class="text-center text-gray-400">No attendance data available.</p>`;
+        attendanceSummaryList.innerHTML = `<p class="text-center text-gray-400">No attendance records found.</p>`;
+        return;
+    }
     
-
-    if (subjects.length === 0) {
-        subjectListDiv.innerHTML = '<p class="text-center text-gray-400">No attendance data available. Add a new subject to get started.</p>';
-    } else {
-        subjectListDiv.innerHTML = subjects.map(subject => `
+   
+    subjectAttendanceList.innerHTML = allSubjects.map(subject => {
+        const percentage = subject.totalClasses > 0 ? (subject.classesAttended / subject.totalClasses) * 100 : 0;
+        const colorClass = percentage < 75 ? 'text-red-400' : 'text-green-400';
+        return `
             <div class="flex justify-between items-center bg-gray-700 p-4 rounded-xl">
                 <div class="flex-1">
                     <span class="font-bold">${subject.name}</span>
@@ -131,178 +107,198 @@ const renderDashboard = () => {
                     </div>
                 </div>
                 <div class="text-right">
-                    <span class="text-lg font-bold ${
-                        (subject.classesAttended / subject.totalClasses) * 100 < 75 ? 'text-red-400' : 'text-green-400'
-                    }">
-                        ${subject.totalClasses > 0 ? ((subject.classesAttended / subject.totalClasses) * 100).toFixed(1) : '0'}%
+                    <span class="text-lg font-bold ${colorClass}">
+                        ${percentage.toFixed(1)}%
                     </span>
                 </div>
             </div>
-        `).join('');
-    }
-};
-
-const renderAttendanceList = () => {
-    if (subjects.length === 0) {
-        attendanceListDiv.innerHTML = `
-            <div class="p-8 text-center text-gray-400">
-                <p class="mb-4">No attendance records found.</p>
-                <button id="add-subject-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
-                    <span class="inline-flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                        <span>Add New Subject</span>
-                    </span>
-                </button>
-            </div>
         `;
-        document.getElementById('add-subject-btn').addEventListener('click', () => addSubjectModal.classList.remove('hidden'));
-    } else {
-        attendanceListDiv.innerHTML = `
-            <div class="space-y-4">
-                ${subjects.map(subject => `
-                    <div class="flex justify-between items-center bg-gray-700 p-4 rounded-xl">
-                        <div class="flex-1">
-                            <span class="font-bold text-lg">${subject.name}</span>
-                            <div class="text-sm text-gray-400 mt-1">
-                                ${subject.classesAttended} / ${subject.totalClasses}
-                            </div>
-                            <div class="flex items-center mt-2 space-x-2 text-sm text-gray-400">
-                                <span>Future Attendance:</span>
-                                <span class="text-green-400">P: ${
-                                    (subject.classesAttended + 1) / (subject.totalClasses + 1) * 100
-                                }%</span>
-                                <span class="text-red-400">A: ${
-                                    (subject.classesAttended) / (subject.totalClasses + 1) * 100
-                                }%</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-xl transition-colors attendance-tick-btn" data-subject="${subject.name}">
-                                ✓
-                            </button>
-                            <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition-colors attendance-cross-btn" data-subject="${subject.name}">
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-            <div class="text-center mt-6">
-                <button id="add-subject-btn-footer" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
-                    <span class="inline-flex items-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                        <span>Add New Subject</span>
-                    </span>
-                </button>
-            </div>
-        `;
-        document.querySelectorAll('.attendance-tick-btn').forEach(button => {
-            button.addEventListener('click', (e) => handleAttendanceTick(e.target.dataset.subject));
-        });
-        document.querySelectorAll('.attendance-cross-btn').forEach(button => {
-            button.addEventListener('click', (e) => handleAttendanceCross(e.target.dataset.subject));
-        });
-        document.getElementById('add-subject-btn-footer').addEventListener('click', () => {
-            addSubjectModal.classList.remove('hidden');
-        });
-    }
-};
+    }).join('');
 
-const renderTimetable = () => {
-    const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    let timetableHTML = `
-        <div class="flex justify-end mb-4">
-            <button id="add-class-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition-colors">
-                <span class="inline-flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                    <span>Add Class</span>
-                </span>
-            </button>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-    `;
+  
+    attendanceSummaryList.innerHTML = allSubjects.map(subject => {
+        const percentage = subject.totalClasses > 0 ? (subject.classesAttended / subject.totalClasses) * 100 : 0;
+        
+        
+        const futureTotalPresent = subject.totalClasses + 1;
+        const futureAttendedPresent = subject.classesAttended + 1;
+        const presentPercentage = (futureAttendedPresent / futureTotalPresent) * 100;
+        
+        const futureTotalAbsent = subject.totalClasses + 1;
+        const futureAttendedAbsent = subject.classesAttended;
+        const absentPercentage = (futureAttendedAbsent / futureTotalAbsent) * 100;
 
-    daysOfWeek.forEach(day => {
-        timetableHTML += `
+        const colorClass = percentage < 75 ? 'text-red-400' : 'text-green-400';
+
+        return `
             <div class="bg-gray-700 p-4 rounded-xl">
-                <h4 class="font-bold text-indigo-400 mb-2">${day}</h4>
-                <div class="space-y-2">
-                    ${timetable[day] && timetable[day].length > 0
-                        ? timetable[day].map(cls => `
-                            <div class="bg-gray-600 p-2 rounded-lg">
-                                <p class="font-medium">${cls.time}</p>
-                                <p class="text-sm text-gray-300">${cls.subject_name}</p>
-                            </div>
-                        `).join('')
-                        : `<p class="text-gray-400 text-sm">No classes</p>`
-                    }
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-bold text-lg">${subject.name}</span>
+                    <span class="text-sm text-gray-400">Present / Total: ${subject.classesAttended}/${subject.totalClasses}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="w-1/3 text-center">
+                        <span class="text-sm text-gray-400 block">Current (%)</span>
+                        <span class="text-lg font-bold ${colorClass}">${percentage.toFixed(1)}%</span>
+                    </div>
+                    <div class="w-1/3 text-center">
+                        <span class="text-sm text-gray-400 block">After Present (%)</span>
+                        <span class="text-lg font-bold ${presentPercentage < 75 ? 'text-red-400' : 'text-green-400'}">${presentPercentage.toFixed(1)}%</span>
+                        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-xl transition-colors mt-2 text-sm update-btn" data-subject="${subject.name}" data-type="present">✓</button>
+                    </div>
+                    <div class="w-1/3 text-center">
+                        <span class="text-sm text-gray-400 block">After Absent (%)</span>
+                        <span class="text-lg font-bold ${absentPercentage < 75 ? 'text-red-400' : 'text-green-400'}">${absentPercentage.toFixed(1)}%</span>
+                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-1 px-3 rounded-xl transition-colors mt-2 text-sm update-btn" data-subject="${subject.name}" data-type="absent">✕</button>
+                    </div>
                 </div>
             </div>
         `;
-    });
+    }).join('');
 
-    timetableHTML += `</div>`;
-    timetableGridDiv.innerHTML = timetableHTML;
-    document.getElementById('add-class-btn').addEventListener('click', () => {
-        addTimetableModal.classList.remove('hidden');
-    });
-};
-
-const populateSubjectSelects = () => {
-    const subjectOptions = subjects.map(subject => `<option value="${subject.name}">${subject.name}</option>`).join('');
-    if (timetableSubjectSelect) {
-        timetableSubjectSelect.innerHTML = `<option value="">Choose a subject</option>` + subjectOptions;
-    }
-    if (calcSubjectSelect) {
-        calcSubjectSelect.innerHTML = `<option value="">Choose a subject</option>` + subjectOptions;
-    }
-};
-
-const handleAddSubject = async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('subject-name').value;
-    const totalClasses = parseInt(document.getElementById('total-classes').value);
-    const classesAttended = parseInt(document.getElementById('classes-attended').value) || 0;
-
-    try {
-        const response = await fetch(`${API_URL}/subjects`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, totalClasses, classesAttended }),
+    document.querySelectorAll('.update-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const subjectName = e.target.dataset.subject;
+            const type = e.target.dataset.type;
+            const subjectToUpdate = allSubjects.find(s => s.name === subjectName);
+            if (!subjectToUpdate) return;
+            
+            const updatedTotalClasses = subjectToUpdate.totalClasses + 1;
+            const updatedClassesAttended = type === 'present' ? subjectToUpdate.classesAttended + 1 : subjectToUpdate.classesAttended;
+            
+            await updateAttendance(subjectName, updatedClassesAttended, updatedTotalClasses);
         });
-        const result = await response.json();
-        if (response.ok) {
-            showMessage(result.message, 'success');
-            addSubjectModal.classList.add('hidden');
-            document.getElementById('add-subject-form').reset();
-            fetchData();
-        } else {
-            showMessage(result.message, 'error');
+    });
+}
+
+function renderTimetable() {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const timetableContainer = document.createElement('div');
+    timetableContainer.className = "bg-gray-700 p-4 rounded-xl";
+
+    let tableHtml = `<h4 class="text-xl font-bold mb-4">Weekly Timetable</h4>
+        <table class="w-full text-center">
+            <thead>
+                <tr>
+                    <th class="p-2 border-b-2 border-gray-600">Day</th>
+                    <th class="p-2 border-b-2 border-gray-600">Time</th>
+                    <th class="p-2 border-b-2 border-gray-600">Subject</th>
+                </tr>
+            </thead>
+            <tbody>`;
+    
+ 
+    for (const day of days) {
+        if (timetableData[day] && timetableData[day].length > 0) {
+            timetableData[day].sort((a, b) => a.time.localeCompare(b.time));
         }
+    }
+
+    let hasData = false;
+    days.forEach(day => {
+        if (timetableData[day] && timetableData[day].length > 0) {
+            hasData = true;
+            timetableData[day].forEach(item => {
+                tableHtml += `
+                    <tr>
+                        <td class="p-2 border-b border-gray-600">${day}</td>
+                        <td class="p-2 border-b border-gray-600">${item.time}</td>
+                        <td class="p-2 border-b border-gray-600">${item.subject}</td>
+                    </tr>
+                `;
+            });
+        }
+    });
+
+    if (!hasData) {
+        tableHtml = `
+            <p class="text-center text-gray-400 p-4">No timetable data available.</p>
+        `;
+    } else {
+        tableHtml += `
+            </tbody>
+        </table>`;
+    }
+
+    timetableContent.innerHTML = tableHtml;
+}
+
+function renderTodaysClasses() {
+    const today = new Date();
+    const todayDay = today.toLocaleDateString('en-US', { weekday: 'long' });
+    const todaysClasses = timetableData[todayDay] || [];
+    
+    todayClassesCount.textContent = todaysClasses.length;
+
+    if (todaysClasses.length === 0) {
+        todaysClassesList.innerHTML = `<p class="text-center text-gray-400">No classes scheduled for today.</p>`;
+        return;
+    }
+
+    todaysClassesList.innerHTML = todaysClasses.map(classItem => {
+        return `
+            <div class="bg-gray-700 p-4 rounded-xl flex justify-between items-center">
+                <div>
+                    <span class="font-bold">${classItem.subject}</span>
+                    <div class="text-sm text-gray-400 mt-1">${classItem.time}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderUpcomingExams() {
+    if (!examData || examData.length === 0) {
+        upcomingExamsList.innerHTML = `<p class="text-center text-gray-400">No exam data available. Upload a file to get started.</p>`;
+        upcomingExamsCount.textContent = 0;
+        return;
+    }
+    
+    upcomingExamsCount.textContent = examData.length;
+
+
+    examData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    upcomingExamsList.innerHTML = examData.map(exam => {
+        return `
+            <div class="bg-gray-700 p-4 rounded-xl flex justify-between items-center">
+                <div>
+                    <span class="font-bold">${exam.subject}</span>
+                    <div class="text-sm text-gray-400 mt-1">${exam.date} at ${exam.time}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+
+
+async function fetchData() {
+    try {
+        const response = await fetch(`${API_URL}/data`);
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+        const data = await response.json();
+        allSubjects = data.subjects || [];
+        timetableData = data.timetable || {};
+        examData = data.exams || [];
+        
+      
+        calculateOverallAttendance();
+        renderSubjectAttendance();
+        renderTodaysClasses();
+        renderTimetable();
+        renderUpcomingExams();
+        populateSubjectSelects();
+
     } catch (error) {
-        console.error('Error adding subject:', error);
-        showMessage('Error adding subject. Please ensure the Flask server is running.', 'error');
+        console.error('Error fetching data:', error);
+        showMessage('Error fetching data from the backend. Please ensure the Flask server is running.', 'error');
     }
-};
+}
 
-const handleAttendanceTick = async (subjectName) => {
-    const subjectToUpdate = subjects.find(s => s.name === subjectName);
-    if (subjectToUpdate) {
-        const updatedClassesAttended = subjectToUpdate.classesAttended + 1;
-        const updatedTotalClasses = subjectToUpdate.totalClasses + 1;
-        await updateAttendance(subjectName, updatedClassesAttended, updatedTotalClasses);
-    }
-};
-
-const handleAttendanceCross = async (subjectName) => {
-    const subjectToUpdate = subjects.find(s => s.name === subjectName);
-    if (subjectToUpdate) {
-        const updatedTotalClasses = subjectToUpdate.totalClasses + 1;
-        await updateAttendance(subjectName, subjectToUpdate.classesAttended, updatedTotalClasses);
-    }
-};
-
-const updateAttendance = async (subjectName, classesAttended, totalClasses) => {
+async function updateAttendance(subjectName, classesAttended, totalClasses) {
     try {
         const response = await fetch(`${API_URL}/subjects/${subjectName}`, {
             method: 'PUT',
@@ -314,75 +310,218 @@ const updateAttendance = async (subjectName, classesAttended, totalClasses) => {
             showMessage(result.message, 'success');
             fetchData();
         } else {
-            showMessage(result.message, 'error');
+            showMessage(result.error || 'Error updating attendance.', 'error');
         }
     } catch (error) {
         console.error('Error updating attendance:', error);
         showMessage('Error updating attendance. Please try again.', 'error');
     }
-};
+}
 
-const handleCalculateImprovement = (e) => {
+
+navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tabName = e.currentTarget.dataset.tab;
+        
+        
+        navItems.forEach(nav => nav.classList.remove('active'));
+        tabContents.forEach(content => content.classList.add('hidden'));
+
+      
+        e.currentTarget.classList.add('active');
+        document.getElementById(tabName).classList.remove('hidden');
+        if (tabName === 'timetable') {
+            renderTimetable();
+        } else if (tabName === 'exams') {
+            renderUpcomingExams();
+        }
+    });
+});
+
+
+addSubjectButton.addEventListener('click', () => {
+    addSubjectModal.classList.remove('hidden');
+});
+
+cancelAddSubjectBtn.addEventListener('click', () => {
+    addSubjectModal.classList.add('hidden');
+    addSubjectForm.reset();
+});
+
+addSubjectForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const subjectName = calcSubjectSelect.value;
-    const remainingClasses = parseInt(remainingClassesInput.value);
-    
-    if (!subjectName || isNaN(remainingClasses) || remainingClasses < 0) {
-        improvementResultDiv.classList.remove('hidden');
-        improvementResultDiv.classList.add('bg-red-600');
-        improvementResultDiv.innerHTML = `<p class="font-bold">Please select a subject and enter a valid number of remaining classes.</p>`;
-        return;
-    }
-
-    const subject = subjects.find(s => s.name === subjectName);
-    const { classesAttended, totalClasses } = subject;
-    const requiredAttendance = 0.75;
-    
-
-    const classesNeeded = Math.ceil((requiredAttendance * (totalClasses + remainingClasses)) - classesAttended);
-
-    improvementResultDiv.classList.remove('hidden', 'bg-red-600', 'bg-green-600');
-    
-    if (classesNeeded > remainingClasses) {
-        improvementResultDiv.classList.add('bg-red-600');
-        improvementResultDiv.innerHTML = `<p class="font-bold">You cannot reach 75% attendance. You need to attend all ${remainingClasses} classes and even more.</p>`;
-    } else if (classesNeeded <= 0) {
-        improvementResultDiv.classList.add('bg-green-600');
-        improvementResultDiv.innerHTML = `<p class="font-bold">You are already above 75% attendance! Great job!</p>`;
-    } else {
-        improvementResultDiv.classList.add('bg-blue-600');
-        improvementResultDiv.innerHTML = `<p class="font-bold">You need to attend at least ${classesNeeded} out of ${remainingClasses} remaining classes to reach 75%.</p>`;
-    }
-};
-
-const handleAddTimetable = async (e) => {
-    e.preventDefault();
-    const subjectName = document.getElementById('timetable-subject').value;
-    const day = document.getElementById('timetable-day').value;
-    const time = document.getElementById('timetable-time').value;
-
-    if (!subjectName || !day || !time) {
-        showMessage('Please fill in all timetable details.', 'error');
-        return;
-    }
-
+    const newSubject = {
+        name: subjectNameInput.value,
+        totalClasses: parseInt(totalClassesInput.value) || 0,
+        classesAttended: parseInt(classesAttendedInput.value) || 0,
+    };
     try {
-        const response = await fetch(`${API_URL}/timetable/add`, {
+        const response = await fetch(`${API_URL}/subjects`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subject_name: subjectName, day, time }),
+            body: JSON.stringify(newSubject),
         });
         const result = await response.json();
         if (response.ok) {
             showMessage(result.message, 'success');
-            addTimetableModal.classList.add('hidden');
-            document.getElementById('add-timetable-form').reset();
+            addSubjectModal.classList.add('hidden');
+            addSubjectForm.reset();
             fetchData();
         } else {
-            showMessage(result.message, 'error');
+            showMessage(result.error || 'Error adding subject. Please try again.', 'error');
         }
     } catch (error) {
-        console.error('Error adding class to timetable:', error);
+        console.error('Error adding subject:', error);
+        showMessage('Error adding subject. Please try again.', 'error');
+    }
+});
+
+
+manualAddButton.addEventListener('click', () => {
+    addClassModal.classList.remove('hidden');
+});
+
+cancelAddClassBtn.addEventListener('click', () => {
+    addClassModal.classList.add('hidden');
+    addClassForm.reset();
+});
+
+addClassForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const newClass = {
+        subject: addClassSubjectInput.value,
+        day: addClassDaySelect.value,
+        time: addClassTimeInput.value,
+    };
+    try {
+        const response = await fetch(`${API_URL}/add_class_to_timetable`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newClass),
+        });
+        const result = await response.json();
+        if (response.ok) {
+            showMessage(result.message, 'success');
+            addClassModal.classList.add('hidden');
+            addClassForm.reset();
+            fetchData();
+        } else {
+            showMessage(result.error || 'Error adding class. Please try again.', 'error');
+        }
+    } catch (error) {
+        console.error('Error adding class:', error);
         showMessage('Error adding class. Please try again.', 'error');
     }
-};
+});
+
+
+timetableUploadButton.addEventListener('click', () => {
+    timetableFileInput.click();
+});
+
+timetableFileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch(`${API_URL}/upload-timetable`, {
+            method: 'POST',
+            body: formData,
+        });
+        const result = await response.json();
+        if (response.ok) {
+            showMessage(result.message, 'success');
+            fetchData();
+        } else {
+            showMessage(result.error || 'Error uploading file.', 'error');
+        }
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        showMessage('Error uploading file. Please try again.', 'error');
+    }
+});
+
+
+examUploadButton.addEventListener('click', () => {
+    examFileInput.click();
+});
+
+examFileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch(`${EXAM_API_URL}/upload-exams`, {
+            method: 'POST',
+            body: formData,
+        });
+        const result = await response.json();
+        if (response.ok) {
+            showMessage(result.message, 'success');
+            fetchData();
+        } else {
+            showMessage(result.error || 'Error uploading exam file.', 'error');
+        }
+    } catch (error) {
+        console.error('Error uploading exam file:', error);
+        showMessage('Error uploading exam file. Please try again.', 'error');
+    }
+});
+
+
+improvementForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const subjectName = calcSubjectSelect.value;
+    const remainingClasses = parseInt(remainingClassesInput.value);
+
+    if (!subjectName || isNaN(remainingClasses) || remainingClasses < 0) {
+        improvementResult.textContent = 'Please select a subject and enter remaining classes.';
+        improvementResult.classList.remove('hidden');
+        return;
+    }
+
+    const subject = allSubjects.find(s => s.name === subjectName);
+    if (!subject) {
+        improvementResult.textContent = 'Subject not found.';
+        improvementResult.classList.remove('hidden');
+        return;
+    }
+
+    const { classesAttended, totalClasses } = subject;
+    const requiredAttendance = 0.75;
+    const classesNeeded = Math.ceil((requiredAttendance * (totalClasses + remainingClasses)) - classesAttended);
+
+    if (classesNeeded > remainingClasses) {
+        improvementResult.textContent = `You cannot reach 75% attendance. You need to attend all ${remainingClasses} classes and even more.`;
+    } else if (classesNeeded <= 0) {
+        improvementResult.textContent = 'You are already above 75% attendance! Great job!';
+    } else {
+        improvementResult.textContent = `You need to attend at least ${classesNeeded} out of ${remainingClasses} remaining classes to reach 75%.`;
+    }
+    
+    improvementResult.classList.remove('hidden');
+});
+
+function populateSubjectSelects() {
+    const subjects = allSubjects.map(s => s.name);
+    let optionsHtml = '<option value="">Choose a subject</option>';
+    subjects.forEach(subject => {
+        optionsHtml += `<option value="${subject}">${subject}</option>`;
+    });
+    calcSubjectSelect.innerHTML = optionsHtml;
+}
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    fetchData();
+});

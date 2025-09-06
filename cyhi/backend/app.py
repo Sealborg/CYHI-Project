@@ -1,17 +1,16 @@
 import json
+import os
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import pandas as pd
-import os
 
 app = Flask(__name__)
 CORS(app)
 
-# Path for the data file
 DATA_FILE = 'attendance_data.json'
+USERS_FILE = 'users.json'
 
-# --- Utility Functions ---
 def get_data():
     """Reads data from the JSON file."""
     if not os.path.exists(DATA_FILE):
@@ -19,7 +18,6 @@ def get_data():
             json.dump({"subjects": [], "timetable": {}, "exams": []}, f)
     with open(DATA_FILE, 'r') as f:
         data = json.load(f)
-    # Ensure keys exist to prevent crashes
     if "subjects" not in data:
         data["subjects"] = []
     if "timetable" not in data:
@@ -33,7 +31,20 @@ def save_data(data):
     with open(DATA_FILE, 'w') as f:
         json.dump(data, f, indent=4)
 
-# --- Frontend Route ---
+def get_users():
+    """Reads user data from the JSON file."""
+    if not os.path.exists(USERS_FILE):
+        with open(USERS_FILE, 'w') as f:
+            json.dump({}, f)
+    with open(USERS_FILE, 'r') as f:
+        return json.load(f)
+
+def save_users(users):
+    """Saves user data to the JSON file."""
+    with open(USERS_FILE, 'w') as f:
+        json.dump(users, f, indent=4)
+
+
 @app.route('/')
 def serve_index():
     return send_from_directory('frontend', 'index.html')
@@ -42,18 +53,39 @@ def serve_index():
 def serve_static(path):
     return send_from_directory('frontend', path)
 
-# --- API Endpoints ---
 @app.route('/api/data', methods=['GET'])
 def get_all_data():
     data = get_data()
     return jsonify(data)
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    users = get_users()
+    username = request.json.get('username')
+    password = request.json.get('password')
+    if username in users and users[username]['password'] == password:
+        return jsonify({"message": "Login successful!", "username": username})
+    return jsonify({"error": "Invalid credentials."}), 401
+
+@app.route('/api/signup', methods=['POST'])
+def signup():
+    users = get_users()
+    username = request.json.get('username')
+    password = request.json.get('password')
+    if not username or not password:
+        return jsonify({"error": "Username and password are required."}), 400
+    if username in users:
+        return jsonify({"error": "Username already exists."}), 409
+    
+    users[username] = {"password": password}
+    save_users(users)
+    return jsonify({"message": "Sign up successful!", "username": username}), 201
 
 @app.route('/api/subjects', methods=['POST'])
 def add_subject():
     data = get_data()
     new_subject = request.json
     
-    # Check if subject already exists
     subject_exists = any(s['name'] == new_subject['name'] for s in data['subjects'])
     if subject_exists:
         return jsonify({"error": "Subject with this name already exists."}), 400
@@ -85,7 +117,6 @@ def upload_timetable():
         return jsonify({"error": "No selected file"}), 400
 
     try:
-        # Read file with no header and manually assign column names
         if file.filename.endswith('.csv'):
             df = pd.read_csv(file, header=None, names=['Day', 'Time', 'Subject'])
         elif file.filename.endswith(('.xlsx', '.xls')):
@@ -93,7 +124,6 @@ def upload_timetable():
         else:
             return jsonify({"error": "Invalid file type. Please upload a CSV or XLSX file."}), 400
 
-        # Basic validation
         if df.shape[1] != 3:
              return jsonify({"error": "File must contain exactly 3 columns: Day, Time, Subject."}), 400
 
