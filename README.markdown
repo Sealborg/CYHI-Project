@@ -1,7 +1,7 @@
-# Smart Student Planner
+# Bunk-O-Meter
 
 ## Overview
-Smart Student Planner is a web-based application designed to help students manage their academic schedules, track attendance, and plan for academic improvement. The application allows users to add subjects, update attendance, view their weekly timetable, and calculate the number of classes needed to achieve a target attendance percentage (e.g., 75%).
+Bunk-O-Meter is a web-based application designed to help students manage their academic schedules, track attendance, and plan for academic improvement. The application allows users to add subjects, update attendance, view their weekly timetable, and calculate the number of classes needed to achieve a target attendance percentage (e.g., 75%).
 
 ## Features
 - **Dashboard**: Displays an overview of overall attendance, today's classes, upcoming exams, and subject-wise attendance details.
