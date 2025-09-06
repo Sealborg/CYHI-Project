@@ -1,16 +1,17 @@
 import json
 import os
-from datetime import datetime
+import pandas as pd
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import pandas as pd
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='frontend')
 CORS(app)
 
+# Path for the data files
 DATA_FILE = 'attendance_data.json'
 USERS_FILE = 'users.json'
 
+# --- Utility Functions ---
 def get_data():
     """Reads data from the JSON file."""
     if not os.path.exists(DATA_FILE):
@@ -44,7 +45,7 @@ def save_users(users):
     with open(USERS_FILE, 'w') as f:
         json.dump(users, f, indent=4)
 
-
+# --- Frontend Routes ---
 @app.route('/')
 def serve_index():
     return send_from_directory('frontend', 'index.html')
@@ -53,6 +54,7 @@ def serve_index():
 def serve_static(path):
     return send_from_directory('frontend', path)
 
+# --- API Endpoints ---
 @app.route('/api/data', methods=['GET'])
 def get_all_data():
     data = get_data()
@@ -64,32 +66,31 @@ def login():
     username = request.json.get('username')
     password = request.json.get('password')
     if username in users and users[username]['password'] == password:
-        return jsonify({"message": "Login successful!", "username": username})
+        return jsonify({"message": "Login successful!", "username": username, "name": users[username]['name']})
     return jsonify({"error": "Invalid credentials."}), 401
 
 @app.route('/api/signup', methods=['POST'])
 def signup():
     users = get_users()
+    name = request.json.get('name')
     username = request.json.get('username')
     password = request.json.get('password')
-    if not username or not password:
-        return jsonify({"error": "Username and password are required."}), 400
+    if not username or not password or not name:
+        return jsonify({"error": "Name, username, and password are required."}), 400
     if username in users:
         return jsonify({"error": "Username already exists."}), 409
     
-    users[username] = {"password": password}
+    users[username] = {"name": name, "password": password}
     save_users(users)
-    return jsonify({"message": "Sign up successful!", "username": username}), 201
+    return jsonify({"message": "Sign up successful!", "username": username, "name": name}), 201
 
 @app.route('/api/subjects', methods=['POST'])
 def add_subject():
     data = get_data()
     new_subject = request.json
-    
     subject_exists = any(s['name'] == new_subject['name'] for s in data['subjects'])
     if subject_exists:
         return jsonify({"error": "Subject with this name already exists."}), 400
-
     new_subject['totalClasses'] = int(new_subject.get('totalClasses', 0))
     new_subject['classesAttended'] = int(new_subject.get('classesAttended', 0))
     data['subjects'].append(new_subject)
@@ -111,11 +112,9 @@ def update_subject(subject_name):
 def upload_timetable():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
-
     file = request.files['file']
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
-
     try:
         if file.filename.endswith('.csv'):
             df = pd.read_csv(file, header=None, names=['Day', 'Time', 'Subject'])
@@ -123,20 +122,15 @@ def upload_timetable():
             df = pd.read_excel(file, engine='openpyxl', header=None, names=['Day', 'Time', 'Subject'])
         else:
             return jsonify({"error": "Invalid file type. Please upload a CSV or XLSX file."}), 400
-
         if df.shape[1] != 3:
-             return jsonify({"error": "File must contain exactly 3 columns: Day, Time, Subject."}), 400
-
+            return jsonify({"error": "File must contain exactly 3 columns: Day, Time, Subject."}), 400
         timetable = {}
         unique_subjects = df['Subject'].unique()
-        
         data = get_data()
-        
         for subject_name in unique_subjects:
             subject_exists = any(s['name'] == subject_name for s in data['subjects'])
             if not subject_exists:
                 data['subjects'].append({"name": subject_name, "totalClasses": 0, "classesAttended": 0})
-        
         for index, row in df.iterrows():
             day = row['Day'].capitalize()
             time = str(row['Time'])
@@ -144,7 +138,6 @@ def upload_timetable():
             if day not in timetable:
                 timetable[day] = []
             timetable[day].append({"time": time, "subject": subject})
-        
         data['timetable'] = timetable
         save_data(data)
         return jsonify({"message": "Timetable uploaded successfully!"})
@@ -157,18 +150,14 @@ def add_class_to_timetable():
     new_class = request.json
     day = new_class.get('day')
     subject = new_class.get('subject')
-    
     if not subject:
         return jsonify({"error": "Subject cannot be empty."}), 400
-
     if day not in data['timetable']:
         data['timetable'][day] = []
     data['timetable'][day].append(new_class)
-    
     subject_exists = any(s['name'] == subject for s in data['subjects'])
     if not subject_exists:
         data['subjects'].append({"name": subject, "totalClasses": 0, "classesAttended": 0})
-
     save_data(data)
     return jsonify({"message": "Class added to timetable successfully!"})
 
@@ -176,11 +165,9 @@ def add_class_to_timetable():
 def upload_exams():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
-
     file = request.files['file']
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
-
     try:
         if file.filename.endswith('.csv'):
             df = pd.read_csv(file, header=None, names=['Subject', 'Date', 'Time'])
@@ -188,17 +175,14 @@ def upload_exams():
             df = pd.read_excel(file, engine='openpyxl', header=None, names=['Subject', 'Date', 'Time'])
         else:
             return jsonify({"error": "Invalid file type. Please upload a CSV or XLSX file."}), 400
-        
         if df.shape[1] != 3:
-             return jsonify({"error": "Exam file must contain exactly 3 columns: Subject, Date, Time."}), 400
-        
+            return jsonify({"error": "Exam file must contain exactly 3 columns: Subject, Date, Time."}), 400
         data = get_data()
         unique_subjects = df['Subject'].unique()
         for subject_name in unique_subjects:
             subject_exists = any(s['name'] == subject_name for s in data['subjects'])
             if not subject_exists:
                 data['subjects'].append({"name": subject_name, "totalClasses": 0, "classesAttended": 0})
-
         exams = []
         for index, row in df.iterrows():
             exams.append({
@@ -206,15 +190,23 @@ def upload_exams():
                 "date": str(row['Date']),
                 "time": str(row['Time'])
             })
-        
         data['exams'] = exams
         save_data(data)
         return jsonify({"message": "Exam timetable uploaded successfully!"})
     except Exception as e:
         return jsonify({"error": f"Failed to process file: {str(e)}"}), 500
 
+@app.route('/api/reset-data', methods=['DELETE'])
+def reset_data():
+    try:
+        if os.path.exists(DATA_FILE):
+            os.remove(DATA_FILE)
+        return jsonify({"message": "All planner data has been reset."})
+    except Exception as e:
+        return jsonify({"error": f"Failed to reset data: {str(e)}"}), 500
 
 if __name__ == '__main__':
     if not os.path.exists('frontend'):
-        print("Frontend directory not found. Please create it and place your HTML, CSS, and JS files inside.")
+        os.makedirs('frontend')
+        print("Created 'frontend' directory. Please place your HTML, CSS, and JS files inside.")
     app.run(debug=True, port=5000)

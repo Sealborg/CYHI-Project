@@ -2,8 +2,8 @@
     "subjects": [
         {
             "name": "COA",
-            "totalClasses": 2,
-            "classesAttended": 2
+            "totalClasses": 0,
+            "classesAttended": 0
         },
         {
             "name": "DBMS",
@@ -22,6 +22,11 @@
         },
         {
             "name": "Discrete",
+            "totalClasses": 0,
+            "classesAttended": 0
+        },
+        {
+            "name": "BIO",
             "totalClasses": 0,
             "classesAttended": 0
         }
@@ -71,6 +76,13 @@
             {
                 "time": "9:00",
                 "subject": "DBMS"
+            }
+        ],
+        "Saturday": [
+            {
+                "subject": "BIO",
+                "day": "Saturday",
+                "time": "16:00"
             }
         ]
     },
