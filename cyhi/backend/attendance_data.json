@@ -2,33 +2,28 @@
     "subjects": [
         {
             "name": "COA",
-            "totalClasses": 0,
-            "classesAttended": 0
+            "totalClasses": 1,
+            "classesAttended": 1
         },
         {
             "name": "DBMS",
-            "totalClasses": 0,
-            "classesAttended": 0
+            "totalClasses": 3,
+            "classesAttended": 2
         },
         {
             "name": "DSA",
-            "totalClasses": 0,
-            "classesAttended": 0
+            "totalClasses": 2,
+            "classesAttended": 1
         },
         {
             "name": "DS",
-            "totalClasses": 0,
-            "classesAttended": 0
+            "totalClasses": 1,
+            "classesAttended": 1
         },
         {
             "name": "Discrete",
-            "totalClasses": 0,
-            "classesAttended": 0
-        },
-        {
-            "name": "BIO",
-            "totalClasses": 0,
-            "classesAttended": 0
+            "totalClasses": 1,
+            "classesAttended": 1
         }
     ],
     "timetable": {
@@ -76,13 +71,6 @@
             {
                 "time": "9:00",
                 "subject": "DBMS"
-            }
-        ],
-        "Saturday": [
-            {
-                "subject": "BIO",
-                "day": "Saturday",
-                "time": "16:00"
             }
         ]
     },

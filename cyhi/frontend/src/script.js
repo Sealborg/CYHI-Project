@@ -43,7 +43,8 @@ const examUploadButton = document.getElementById('upload-exam-button');
 const upcomingExamsList = document.getElementById('upcoming-exams-list');
 const upcomingExamsCount = document.getElementById('upcoming-exams-count');
 
-const resetButton = document.getElementById('reset-button'); // New reset button element
+const resetButton = document.getElementById('reset-button');
+const attendanceHeatmap = document.getElementById('attendance-heatmap');
 
 let allSubjects = [];
 let timetableData = {};
@@ -93,7 +94,7 @@ function renderSubjectAttendance() {
     }
     
     if (subjectAttendanceList) {
-        subjectAttendanceList.innerHTML = allSubjects.map(subject => {
+        subjectAttendanceList.innerHTML = allSubjects.map((subject, index) => {
             const percentage = subject.totalClasses > 0 ? (subject.classesAttended / subject.totalClasses) * 100 : 0;
             const colorClass = percentage < 75 ? 'text-red-400' : 'text-green-400';
             return `
@@ -104,14 +105,48 @@ function renderSubjectAttendance() {
                             ${subject.classesAttended} / ${subject.totalClasses} classes attended
                         </div>
                     </div>
-                    <div class="text-right">
-                        <span class="text-lg font-bold ${colorClass}">
-                            ${percentage.toFixed(1)}%
-                        </span>
+                    <div class="flex items-center space-x-4">
+                        <div class="pie-chart-container">
+                            <canvas id="pie-chart-${index}"></canvas>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-bold ${colorClass}">
+                                ${percentage.toFixed(1)}%
+                            </span>
+                        </div>
                     </div>
                 </div>
             `;
         }).join('');
+
+        allSubjects.forEach((subject, index) => {
+            const ctx = document.getElementById(`pie-chart-${index}`).getContext('2d');
+            const data = {
+                labels: ['Attended', 'Missed'],
+                datasets: [{
+                    data: [subject.classesAttended, subject.totalClasses - subject.classesAttended],
+                    backgroundColor: ['#22c55e', '#ef4444'],
+                    borderWidth: 0
+                }]
+            };
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    }
+                }
+            });
+        });
     }
 
     if (attendanceSummaryList) {
@@ -281,7 +316,7 @@ async function fetchData() {
         renderTimetable();
         renderUpcomingExams();
         populateSubjectSelects();
-
+        
     } catch (error) {
         console.error('Error fetching data:', error);
         showMessage('Error fetching data from the backend. Please ensure the Flask server is running.', 'error');
@@ -330,6 +365,8 @@ navItems.forEach(item => {
             renderTimetable();
         } else if (tabName === 'exams') {
             renderUpcomingExams();
+        } else if (tabName === 'attendance') {
+            renderSubjectAttendance();
         }
     });
 });
@@ -508,7 +545,6 @@ function populateSubjectSelects() {
     if (calcSubjectSelect) calcSubjectSelect.innerHTML = optionsHtml;
 }
 
-// --- Reset Functionality ---
 if (resetButton) {
     resetButton.addEventListener('click', async () => {
         if (confirm('Are you sure you want to reset all planner data? This action cannot be undone.')) {
